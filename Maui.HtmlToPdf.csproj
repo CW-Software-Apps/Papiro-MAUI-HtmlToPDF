@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net10.0;net10.0-android;net10.0-ios</TargetFrameworks>
+        <UseMaui>true</UseMaui>
+        <SingleProject>true</SingleProject>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+
+        <!-- NuGet Metadata -->
+        <IsPackable>true</IsPackable>
+        <PackageId>CwSoftware.Papiro</PackageId>
+        <Version>1.0.0</Version>
+        <Authors>CW Software</Authors>
+        <Company>CW Software</Company>
+        <Description>Native HTML to PDF conversion for .NET MAUI using platform APIs (Android PrintManager/WebView, iOS UIPrintPageRenderer). Fast, free, and lightweight.</Description>
+        <PackageTags>maui;pdf;html;html2pdf;native;papiro</PackageTags>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/CW-Software-Apps/Papiro-MAUI-HtmlToPDF</RepositoryUrl>
+        <NoWarn>IDE1006;IDE0011</NoWarn>
+        <SkipValidateMauiImplicitPackageReferences>true</SkipValidateMauiImplicitPackageReferences>
+    </PropertyGroup>
+
+    <ItemGroup Condition="$(TargetFramework.StartsWith('net8.0-android'))">
+        <GoogleServicesJson Include="google-services.json" Condition="Exists('google-services.json')" />
+    </ItemGroup>
+
+</Project>
