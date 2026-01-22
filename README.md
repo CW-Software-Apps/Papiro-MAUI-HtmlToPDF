@@ -1,6 +1,6 @@
 # Papiro - Native HTML to PDF for .NET MAUI
 
-![Papiro Logo](PapiroLogo.png)
+![Papiro Logo](https://raw.githubusercontent.com/CW-Software-Apps/Papiro-MAUI-HtmlToPDF/main/PapiroLogo.png)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![NuGet](https://img.shields.io/nuget/v/CwSoftware.Papiro.svg)](https://www.nuget.org/packages/CwSoftware.Papiro)

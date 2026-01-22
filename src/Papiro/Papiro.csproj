@@ -10,7 +10,7 @@
         <!-- NuGet Metadata -->
         <IsPackable>true</IsPackable>
         <PackageId>CwSoftware.Papiro</PackageId>
-        <Version>1.0.1</Version>
+        <Version>1.0.2</Version>
         <Authors>CW Software</Authors>
         <Company>CW Software</Company>
         <Description>Native HTML to PDF conversion for .NET MAUI using platform APIs (Android PrintManager/WebView, iOS UIPrintPageRenderer). Fast, free, and lightweight.</Description>
