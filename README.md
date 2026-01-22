@@ -392,6 +392,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ---
 
-<p align="center">
-  Made with ❤️ by <a href="https://github.com/CW-Software-Apps">CW Software</a>
-</p>
+---
+
+Made with ❤️ by [CW Software](https://github.com/CW-Software-Apps)
