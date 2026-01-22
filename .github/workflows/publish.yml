@@ -34,4 +34,7 @@ jobs:
       run: dotnet pack src/Papiro/Papiro.csproj -c Release --no-build --output ./nupkgs
 
     - name: Push to NuGet
-      run: dotnet nuget push "./nupkgs/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+      run: |
+        Get-ChildItem -Path "nupkgs\*.nupkg" | ForEach-Object {
+            dotnet nuget push $_.FullName --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        }
