@@ -19,10 +19,17 @@
         <RepositoryUrl>https://github.com/CW-Software-Apps/Papiro-MAUI-HtmlToPDF</RepositoryUrl>
         <NoWarn>IDE1006;IDE0011</NoWarn>
         <SkipValidateMauiImplicitPackageReferences>true</SkipValidateMauiImplicitPackageReferences>
+
+        <!-- Packing Assets -->
+        <PackageIcon>PapiroLogo.png</PackageIcon>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
 
-    <ItemGroup Condition="$(TargetFramework.StartsWith('net8.0-android'))">
-        <GoogleServicesJson Include="google-services.json" Condition="Exists('google-services.json')" />
+    <ItemGroup>
+        <None Include="..\..\PapiroLogo.png" Pack="true" PackagePath="" />
+        <None Include="..\..\README.md" Pack="true" PackagePath="" />
     </ItemGroup>
 
 </Project>
