@@ -1,14 +1,11 @@
 # Papiro - Native HTML to PDF for .NET MAUI
 
-<p align="center">
-  <img src="PapiroLogo.png" alt="Papiro Logo" width="600" />
-</p>
+![Papiro Logo](PapiroLogo.png)
 
-<p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
-  <a href="https://dotnet.microsoft.com/"><img src="https://img.shields.io/badge/.NET-10.0-purple" alt=".NET"></a>
-  <a href="https://github.com/CW-Software-Apps/Papiro-MAUI-HtmlToPDF"><img src="https://img.shields.io/badge/Platforms-Android%20%7C%20iOS-lightgrey" alt="Platforms"></a>
-</p>
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![NuGet](https://img.shields.io/nuget/v/CwSoftware.Papiro.svg)](https://www.nuget.org/packages/CwSoftware.Papiro)
+[![.NET](https://img.shields.io/badge/.NET-10.0-purple)](https://dotnet.microsoft.com/)
+[![Platforms](https://img.shields.io/badge/Platforms-Android%20%7C%20iOS-lightgrey)](https://github.com/CW-Software-Apps/Papiro-MAUI-HtmlToPDF)
 
 A **lightweight, free, and fully native** library for converting HTML to PDF in .NET MAUI applications. No external dependencies, no expensive licenses, no embedded browsers.
 
