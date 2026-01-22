@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{CompanyName}} - Report</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        @page {
+            margin: 0;
+            size: A4;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            width: 80px;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .company-info h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .company-info p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .report-badge {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 15px 25px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .report-badge .label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .report-badge .number {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        /* Content */
+        .content {
+            padding: 40px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .info-card {
+            background: #f8f9fc;
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-card .label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .info-card .value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* Description Section */
+        .description-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+        }
+
+        .description-section h3 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .description-section h3::before {
+            content: '📝';
+        }
+
+        .description-section p {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        /* Total Section */
+        .total-section {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            padding: 30px;
+            border-radius: 15px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .total-section .label {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .total-section .amount {
+            font-size: 36px;
+            font-weight: 700;
+        }
+
+        /* Footer */
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 25px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-left::before {
+            content: '📄';
+        }
+
+        .footer-right {
+            opacity: 0.7;
+        }
+
+        /* Watermark */
+        .watermark {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            opacity: 0.3;
+            font-size: 12px;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo-section">
+                <img src="{{LogoBase64}}" alt="Logo" class="logo" />
+                <div class="company-info">
+                    <h1>{{CompanyName}}</h1>
+                    <p>{{Website}}</p>
+                    <p>Professional Report</p>
+                </div>
+            </div>
+            <div class="report-badge">
+                <div class="label">Report #</div>
+                <div class="number">{{ReportNumber}}</div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Info Grid -->
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="label">📋 Client</div>
+                    <div class="value">{{ClientName}}</div>
+                </div>
+                <div class="info-card">
+                    <div class="label">📅 Date</div>
+                    <div class="value">{{ReportDate}}</div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="description-section">
+                <h3>Description</h3>
+                <p>{{Description}}</p>
+            </div>
+
+            <!-- Total -->
+            <div class="total-section">
+                <div class="label">💰 Total Amount</div>
+                <div class="amount">{{TotalAmount}}</div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-left">
+                Generated with Papiro - Native HTML to PDF for .NET MAUI
+            </div>
+            <div class="footer-right">
+                {{GeneratedAt}}
+            </div>
+        </div>
+    </div>
+
+    <div class="watermark">
+        Powered by Papiro
+    </div>
+</body>
+
+</html>

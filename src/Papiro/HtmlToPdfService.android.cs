@@ -74,9 +74,23 @@ public partial class HtmlToPdfService
                         
                         await Task.Delay(200); // Allow relayout to settle
 
-                        // Calculate number of pages needed
-                        int pageCount = (int)Math.Ceiling((double)contentHeight / PAGE_HEIGHT);
+                        // Calculate number of pages needed with tolerance
+                        // If content is within 2% of a page boundary, don't create an extra blank page
+                        double exactPages = (double)contentHeight / PAGE_HEIGHT;
+                        double remainder = exactPages - Math.Floor(exactPages);
+                        int pageCount;
+                        
+                        if (remainder < 0.02) // Less than 2% overhang = round down
+                        {
+                            pageCount = (int)Math.Floor(exactPages);
+                        }
+                        else
+                        {
+                            pageCount = (int)Math.Ceiling(exactPages);
+                        }
+                        
                         if (pageCount < 1) pageCount = 1;
+
 
                         var pdfDocument = new PdfDocument();
 
@@ -116,6 +130,10 @@ public partial class HtmlToPdfService
                     {
                         tcs.TrySetResult(HtmlToPdfResult.Failure(ex.Message));
                     }
+                }, 
+                (errorMsg) => 
+                {
+                    tcs.TrySetResult(HtmlToPdfResult.Failure(errorMsg));
                 }));
 
                 webView.LoadDataWithBaseURL(null, html, "text/html", "utf-8", null);
@@ -132,7 +150,13 @@ public partial class HtmlToPdfService
     private class PdfWebViewClient : Android.Webkit.WebViewClient
     {
         private readonly Action<AndroidWebView> _onPageFinished;
-        public PdfWebViewClient(Action<AndroidWebView> onPageFinished) => _onPageFinished = onPageFinished;
+        private readonly Action<string> _onError;
+
+        public PdfWebViewClient(Action<AndroidWebView> onPageFinished, Action<string> onError) 
+        {
+            _onPageFinished = onPageFinished;
+            _onError = onError;
+        }
 
         public override void OnPageFinished(AndroidWebView? view, string? url)
         {
@@ -140,6 +164,16 @@ public partial class HtmlToPdfService
             if (view != null) 
             {
                 _onPageFinished(view);
+            }
+        }
+
+        public override void OnReceivedError(AndroidWebView? view, IWebResourceRequest? request, WebResourceError? error)
+        {
+            base.OnReceivedError(view, request, error);
+            // Only fail if it's the main page usage
+            if (request?.IsForMainFrame == true)
+            {
+                _onError?.Invoke($"WebView Error: {error?.Description} (Code: {error?.ErrorCode})");
             }
         }
     }

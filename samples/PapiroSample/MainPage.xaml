@@ -1,0 +1,217 @@
+<ContentPage
+    x:Class="PapiroSample.MainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Papiro Report"
+    BackgroundColor="{StaticResource PageBackground}"
+    Shell.NavBarIsVisible="False">
+
+    <Grid>
+        <Grid RowDefinitions="Auto,*">
+
+            <!--  Premium Header Area  -->
+            <Grid
+                Grid.Row="0"
+                Margin="0,0,0,20"
+                Padding="20,10,20,40"
+                Background="{StaticResource PrimaryGradient}"
+                HeightRequest="240">
+                <VerticalStackLayout Spacing="8" VerticalOptions="Start">
+                    <Image
+                        Margin="0,0,0,10"
+                        Aspect="AspectFit"
+                        HeightRequest="110"
+                        HorizontalOptions="Center"
+                        Source="papiro_logo.png" />
+                    <Label
+                        CharacterSpacing="1"
+                        FontAttributes="Bold"
+                        FontSize="22"
+                        HorizontalOptions="Center"
+                        Text="PAPIRO GENERATOR"
+                        TextColor="{StaticResource TextInverted}" />
+                    <Label
+                        FontSize="13"
+                        HorizontalOptions="Center"
+                        Text="Create professional PDF reports in seconds"
+                        TextColor="#ccffffff" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <!--  Main Content Area  -->
+            <ScrollView
+                Grid.Row="1"
+                Margin="0,-50,0,0"
+                VerticalScrollBarVisibility="Never">
+                <VerticalStackLayout Padding="20,0,20,30" Spacing="20">
+
+                    <!--  Main Form Card  -->
+                    <Border Style="{StaticResource CardBorder}">
+                        <VerticalStackLayout Spacing="15">
+
+                            <Grid Margin="0,0,0,10" ColumnDefinitions="*,Auto">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="18"
+                                    Text="Paperwork Details"
+                                    TextColor="{StaticResource PrimaryDark}"
+                                    VerticalOptions="Center" />
+                                <Label
+                                    Grid.Column="1"
+                                    FontSize="20"
+                                    Text="📄"
+                                    VerticalOptions="Center" />
+                            </Grid>
+
+                            <!--  Company  -->
+                            <VerticalStackLayout Spacing="4">
+                                <Label Style="{StaticResource FieldLabel}" Text="Company Name" />
+                                <Border Style="{StaticResource InputBorder}">
+                                    <Entry x:Name="CompanyNameEntry" Text="CW Software" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!--  Client  -->
+                            <VerticalStackLayout Spacing="4">
+                                <Label Style="{StaticResource FieldLabel}" Text="Client Name" />
+                                <Border Style="{StaticResource InputBorder}">
+                                    <Entry x:Name="ClientNameEntry" Text="João Silva" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!--  Row for Number & Date  -->
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="15">
+                                <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                    <Label Style="{StaticResource FieldLabel}" Text="Report #" />
+                                    <Border Style="{StaticResource InputBorder}">
+                                        <Entry
+                                            x:Name="ReportNumberEntry"
+                                            Keyboard="Text"
+                                            Text="2024-001" />
+                                    </Border>
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                    <Label Style="{StaticResource FieldLabel}" Text="Date" />
+                                    <Border Style="{StaticResource InputBorder}">
+                                        <DatePicker
+                                            xmlns:sys="clr-namespace:System;assembly=netstandard"
+                                            x:Name="ReportDatePicker"
+                                            Format="dd/MM/yyyy"
+                                            TextColor="{StaticResource TextPrimary}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <!--  Amount  -->
+                            <VerticalStackLayout Spacing="4">
+                                <Label Style="{StaticResource FieldLabel}" Text="Total Amount (R$)" />
+                                <Border Style="{StaticResource InputBorder}">
+                                    <Entry
+                                        x:Name="TotalAmountEntry"
+                                        Keyboard="Numeric"
+                                        Text="15750.00" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!--  Description  -->
+                            <VerticalStackLayout Spacing="4">
+                                <Label Style="{StaticResource FieldLabel}" Text="Description" />
+                                <Border
+                                    Padding="12,5"
+                                    HeightRequest="100"
+                                    Style="{StaticResource InputBorder}">
+                                    <Editor
+                                        x:Name="DescriptionEditor"
+                                        AutoSize="TextChanges"
+                                        Text="Professional technical analysis and software implementation." />
+                                </Border>
+                            </VerticalStackLayout>
+
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!--  Template Selection Card  -->
+                    <Border Padding="15" Style="{StaticResource CardBorder}">
+                        <Grid
+                            ColumnDefinitions="Auto,*"
+                            ColumnSpacing="15"
+                            VerticalOptions="Center">
+                            <Border
+                                Padding="0"
+                                BackgroundColor="{StaticResource AccentLight}"
+                                HeightRequest="44"
+                                HorizontalOptions="Center"
+                                StrokeShape="RoundRectangle 22"
+                                StrokeThickness="0"
+                                VerticalOptions="Center"
+                                WidthRequest="44">
+                                <Label
+                                    FontSize="20"
+                                    HorizontalOptions="Center"
+                                    Text="🎨"
+                                    VerticalOptions="Center" />
+                            </Border>
+
+                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                <Label
+                                    Margin="2,0,0,0"
+                                    Style="{StaticResource FieldLabel}"
+                                    Text="REPORT VISUAL STYLE" />
+                                <Border
+                                    Padding="0"
+                                    BackgroundColor="Transparent"
+                                    StrokeThickness="0"
+                                    Style="{StaticResource InputBorder}">
+                                    <Picker
+                                        x:Name="TemplatePicker"
+                                        Title="Select a style"
+                                        Margin="-5,0,0,0"
+                                        FontAttributes="Bold"
+                                        TextColor="{StaticResource Primary}" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+
+                    <!--  Action Area  -->
+                    <VerticalStackLayout Margin="0,10,0,0" Spacing="15">
+                        <Button
+                            x:Name="GenerateButton"
+                            Clicked="OnGenerateClicked"
+                            Style="{StaticResource PrimaryButton}"
+                            Text="GENERATE &amp; OPEN REPORT" />
+
+                        <Label
+                            x:Name="StatusLabel"
+                            FontSize="12"
+                            HorizontalOptions="Center"
+                            Text="Ready to create"
+                            TextColor="{StaticResource TextSecondary}" />
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </Grid>
+
+        <!-- Loading Overlay -->
+        <Grid x:Name="LoadingOverlay"
+              IsVisible="False"
+              BackgroundColor="#99000000"
+              ZIndex="999">
+            <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="25">
+                <ActivityIndicator IsRunning="True" 
+                                 Color="White"
+                                 WidthRequest="60" 
+                                 HeightRequest="60" />
+                <Label x:Name="LoadingLabel" 
+                       Text="Processing..." 
+                       TextColor="White" 
+                       FontSize="18" 
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+
+</ContentPage>

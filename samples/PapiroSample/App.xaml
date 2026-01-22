@@ -1,0 +1,97 @@
+<?xml version = "1.0" encoding = "UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PapiroSample.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <!-- Papiro Brand Colors -->
+            <Color x:Key="Primary">#2c3e50</Color>      <!-- Midnight Blue -->
+            <Color x:Key="PrimaryDark">#1a252f</Color>  <!-- Darker Blue -->
+            <Color x:Key="Accent">#d4af37</Color>       <!-- Gold -->
+            <Color x:Key="AccentLight">#f1c40f</Color>  <!-- Bright Gold -->
+            
+            <!-- UI Colors -->
+            <!-- Using a very light grey for page background to contrast with white cards -->
+            <Color x:Key="PageBackground">#f4f6f8</Color>
+            <Color x:Key="CardBackground">#ffffff</Color>
+            <Color x:Key="BorderColor">#e0e6ed</Color>
+            
+            <!-- Text Colors -->
+            <Color x:Key="TextPrimary">#2c3e50</Color>
+            <Color x:Key="TextSecondary">#7f8c8d</Color>
+            <Color x:Key="TextInverted">#ffffff</Color>
+            
+            <!-- Brushes -->
+            <LinearGradientBrush x:Key="PrimaryGradient" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#2c3e50" Offset="0.0" />
+                <GradientStop Color="#34495e" Offset="1.0" />
+            </LinearGradientBrush>
+
+            <!-- Styles -->
+            <Style TargetType="Label" x:Key="HeaderLabel">
+                <Setter Property="FontSize" Value="24"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="{StaticResource TextPrimary}"/>
+            </Style>
+            
+            <Style TargetType="Label" x:Key="FieldLabel">
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="TextColor" Value="{StaticResource TextSecondary}"/>
+                <Setter Property="Margin" Value="4,0,0,4"/>
+                <Setter Property="TextTransform" Value="Uppercase"/>
+            </Style>
+            
+            <Style TargetType="Entry">
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+                <Setter Property="TextColor" Value="{StaticResource TextPrimary}"/>
+                <Setter Property="PlaceholderColor" Value="#95a5a6"/>
+                <Setter Property="HeightRequest" Value="45"/>
+            </Style>
+
+            <Style TargetType="Editor">
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+                <Setter Property="TextColor" Value="{StaticResource TextPrimary}"/>
+                <Setter Property="PlaceholderColor" Value="#95a5a6"/>
+            </Style>
+            
+            <Style TargetType="Picker">
+                <Setter Property="BackgroundColor" Value="Transparent"/>
+                <Setter Property="TextColor" Value="{StaticResource TextPrimary}"/>
+                <Setter Property="TitleColor" Value="#95a5a6"/>
+                <Setter Property="HeightRequest" Value="45"/>
+            </Style>
+            
+            <Style TargetType="Button" x:Key="PrimaryButton">
+                <Setter Property="Background" Value="{StaticResource PrimaryGradient}"/>
+                <Setter Property="TextColor" Value="{StaticResource TextInverted}"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="CornerRadius" Value="10"/>
+                <Setter Property="Padding" Value="0,14"/>
+                <Setter Property="HeightRequest" Value="54"/>
+                <Setter Property="Shadow">
+                    <Shadow Brush="#2c3e50" Offset="0,4" Opacity="0.3" Radius="8"/>
+                </Setter>
+            </Style>
+
+            <Style TargetType="Border" x:Key="CardBorder">
+                <Setter Property="BackgroundColor" Value="{StaticResource CardBackground}"/>
+                <Setter Property="StrokeShape" Value="RoundRectangle 16"/>
+                <Setter Property="Stroke" Value="{StaticResource BorderColor}"/>
+                <Setter Property="StrokeThickness" Value="1"/>
+                <Setter Property="Padding" Value="24"/>
+                <Setter Property="Shadow">
+                    <Shadow Brush="#000000" Offset="0,4" Opacity="0.08" Radius="12"/>
+                </Setter>
+            </Style>
+
+            <Style TargetType="Border" x:Key="InputBorder">
+                <Setter Property="BackgroundColor" Value="#f8f9fa"/>
+                <Setter Property="StrokeShape" Value="RoundRectangle 8"/>
+                <Setter Property="Stroke" Value="{StaticResource BorderColor}"/>
+                <Setter Property="StrokeThickness" Value="1"/>
+                <Setter Property="Padding" Value="12,0"/>
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

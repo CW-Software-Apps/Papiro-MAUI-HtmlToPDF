@@ -8,7 +8,7 @@ public partial class HtmlToPdfService : IHtmlToPdfService
             return HtmlToPdfResult.Failure("HTML content cannot be empty.");
 
         fileName ??= $"doc_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
-        
+
         string outputDir = Path.Combine(FileSystem.CacheDirectory, "generated_pdfs");
         if (!Directory.Exists(outputDir))
             Directory.CreateDirectory(outputDir);
@@ -17,7 +17,17 @@ public partial class HtmlToPdfService : IHtmlToPdfService
 
         try
         {
-            return await ConvertVal(htmlContent, outputPath);
+            var conversionTask = ConvertVal(htmlContent, outputPath);
+            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(30));
+
+            var completedTask = await Task.WhenAny(conversionTask, timeoutTask);
+
+            if (completedTask == timeoutTask)
+            {
+                return HtmlToPdfResult.Failure("PDF generation timed out after 30 seconds. This might be caused by large images, complex loop in scripts, or resource loading issues.");
+            }
+
+            return await conversionTask;
         }
         catch (Exception ex)
         {
