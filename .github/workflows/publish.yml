@@ -20,6 +20,9 @@ jobs:
         # Include prerelease versions if 10.0 is preview
         include-prerelease: true
 
+    - name: Install MAUI Workloads
+      run: dotnet workload restore src/Papiro/Papiro.csproj
+
     - name: Restore dependencies
       # Adjust path if Papiro.csproj is not in src/Papiro
       run: dotnet restore src/Papiro/Papiro.csproj
