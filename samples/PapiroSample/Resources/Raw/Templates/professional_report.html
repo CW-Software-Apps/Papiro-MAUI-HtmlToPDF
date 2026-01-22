@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{CompanyName}} - Report</title>
+    <title>{{CompanyName}} - Report Executive</title>
     <style>
+        /* --- Reset & Configurações de Impressão --- */
         * {
             margin: 0;
             padding: 0;
@@ -15,257 +15,296 @@
         }
 
         @page {
-            margin: 0;
+            margin: 15mm 20mm;
             size: A4;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 40px;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #ffffff;
             color: #333;
+            line-height: 1.6;
         }
 
-        .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            overflow: hidden;
-            max-width: 800px;
+        .page-container {
+            max-width: 900px;
             margin: 0 auto;
+            padding: 30px 0;
         }
 
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px;
+        /* --- Header Estilo Card Sutil --- */
+        .header-card {
+            /* Um fundo gradiente muito suave para definir o cabeçalho */
+            background: linear-gradient(to right, #f3f4fd, #f8f0fc);
+            border-radius: 16px;
+            padding: 35px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
+            margin-bottom: 40px;
+            border: 1px solid #eaddf5; /* Borda sutil para definição */
         }
 
-        .logo-section {
+        .branding-section {
+            flex: 2;
+        }
+
+        .logo-container {
+            max-height: 90px;
+            max-width: 400px;
             display: flex;
             align-items: center;
-            gap: 20px;
+            margin-bottom: 15px;
         }
 
         .logo {
-            width: 80px;
+            width: auto;
             height: auto;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+            /* Sombra suave na logo para destaque */
+            filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.1));
         }
 
-        .company-info h1 {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 5px;
+        .company-details h1 {
+            font-size: 24px;
+            color: #2d3748;
+            font-weight: 800;
         }
 
-        .company-info p {
-            opacity: 0.9;
+        .company-details p {
+            color: #667eea; /* Cor da marca no subtítulo */
+            font-weight: 500;
             font-size: 14px;
         }
 
-        .report-badge {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            padding: 15px 25px;
+        .report-meta {
+            text-align: right;
+            background: rgba(255,255,255,0.5);
+            padding: 15px 20px;
             border-radius: 12px;
-            text-align: center;
         }
 
-        .report-badge .label {
-            font-size: 12px;
-            opacity: 0.9;
-            margin-bottom: 5px;
-        }
-
-        .report-badge .number {
-            font-size: 24px;
+        .meta-label {
+            display: block;
+            text-transform: uppercase;
+            font-size: 11px;
+            color: #764ba2; /* Roxo da marca */
             font-weight: 700;
+            letter-spacing: 1px;
         }
 
-        /* Content */
-        .content {
-            padding: 40px;
+        .meta-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3748;
         }
 
-        .info-grid {
+            .meta-value.highlight {
+                font-size: 22px;
+                color: #667eea;
+            }
+
+        /* --- Conteúdo em Cards Coloridos --- */
+        .main-content {
+            margin-bottom: 50px;
+        }
+
+        .data-grid-cards {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 30px;
             margin-bottom: 40px;
         }
 
-        .info-card {
-            background: #f8f9fc;
+        /* Estilo base dos cards de dados */
+        .data-card {
+            background: #fff;
+            border-radius: 16px;
             padding: 25px;
-            border-radius: 15px;
-            border-left: 4px solid #667eea;
+            box-shadow: 0 10px 20px -10px rgba(0,0,0,0.1); /* Sombra moderna */
+            border-top: 5px solid #eee; /* Linha colorida no topo */
         }
 
-        .info-card .label {
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #666;
-            margin-bottom: 8px;
+        /* Variação Azul */
+        .card-accent-blue {
+            background: linear-gradient(145deg, #ffffff, #f5f7ff);
+            border-top-color: #667eea;
         }
 
-        .info-card .value {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
+            .card-accent-blue .data-icon {
+                color: #667eea;
+            }
+
+        /* Variação Roxa */
+        .card-accent-purple {
+            background: linear-gradient(145deg, #ffffff, #faf5ff);
+            border-top-color: #764ba2;
         }
 
-        /* Description Section */
-        .description-section {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 40px;
-        }
+            .card-accent-purple .data-icon {
+                color: #764ba2;
+            }
 
-        .description-section h3 {
-            font-size: 18px;
-            color: #333;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .description-section h3::before {
-            content: '📝';
-        }
-
-        .description-section p {
-            font-size: 16px;
-            line-height: 1.8;
-            color: #555;
-        }
-
-        /* Total Section */
-        .total-section {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            padding: 30px;
-            border-radius: 15px;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .total-section .label {
-            font-size: 16px;
-            opacity: 0.9;
-        }
-
-        .total-section .amount {
-            font-size: 36px;
-            font-weight: 700;
-        }
-
-        /* Footer */
-        .footer {
-            background: #2c3e50;
-            color: white;
-            padding: 25px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .data-label {
             font-size: 13px;
-        }
-
-        .footer-left {
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #718096;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
             gap: 10px;
+            font-weight: 600;
         }
 
-        .footer-left::before {
-            content: '📄';
+        .data-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2d3748;
+            padding-left: 26px; /* Alinha com o texto do label, ignorando o ícone */
         }
 
-        .footer-right {
-            opacity: 0.7;
+        /* Seção de Descrição em Bloco */
+        .description-card {
+            background-color: #f8f9fc; /* Cinza azulado claro */
+            border-radius: 16px;
+            padding: 35px;
+            border-left: 5px solid #cbd5e0;
         }
 
-        /* Watermark */
-        .watermark {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            opacity: 0.3;
-            font-size: 12px;
+            .description-card h3 {
+                font-size: 16px;
+                text-transform: uppercase;
+                color: #4a5568;
+                margin-bottom: 15px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .description-card p {
+                font-size: 15px;
+                color: #4a5568;
+                line-height: 1.8;
+                text-align: justify;
+            }
+
+        /* --- Seção de Total Vibrante --- */
+        .total-card-vibrant {
+            /* Usando o gradiente principal da marca para destaque total */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: right;
             color: white;
+            box-shadow: 0 15px 30px -10px rgba(102, 126, 234, 0.5); /* Sombra colorida */
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .total-label {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .total-amount {
+            font-size: 48px;
+            font-weight: 800;
+            line-height: 1;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* --- Footer --- */
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #edf2f7;
+            display: flex;
+            justify-content: space-between;
+            color: #a0aec0;
+            font-size: 12px;
+        }
+
+        .accent-text {
+            color: #667eea;
+            font-weight: 600;
         }
     </style>
 </head>
-
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <div class="logo-section">
-                <img src="{{LogoBase64}}" alt="Logo" class="logo" />
-                <div class="company-info">
+    <div class="page-container">
+        <header class="header-card">
+            <div class="branding-section">
+                <div class="logo-container">
+                    <img src="{{LogoBase64}}" alt="Company Logo" class="logo" />
+                </div>
+                <div class="company-details">
                     <h1>{{CompanyName}}</h1>
                     <p>{{Website}}</p>
-                    <p>Professional Report</p>
-                </div>
-            </div>
-            <div class="report-badge">
-                <div class="label">Report #</div>
-                <div class="number">{{ReportNumber}}</div>
-            </div>
-        </div>
-
-        <!-- Content -->
-        <div class="content">
-            <!-- Info Grid -->
-            <div class="info-grid">
-                <div class="info-card">
-                    <div class="label">📋 Client</div>
-                    <div class="value">{{ClientName}}</div>
-                </div>
-                <div class="info-card">
-                    <div class="label">📅 Date</div>
-                    <div class="value">{{ReportDate}}</div>
                 </div>
             </div>
 
-            <!-- Description -->
-            <div class="description-section">
-                <h3>Description</h3>
+            <div class="report-meta">
+                <div style="margin-bottom: 15px;">
+                    <span class="meta-label">Report Number</span>
+                    <span class="meta-value highlight">#{{ReportNumber}}</span>
+                </div>
+                <div>
+                    <span class="meta-label">Date Issued</span>
+                    <span class="meta-value">{{ReportDate}}</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="data-grid-cards">
+                <div class="data-card card-accent-blue">
+                    <div class="data-label">
+                        <svg class="data-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        Client Details
+                    </div>
+                    <div class="data-value">{{ClientName}}</div>
+                </div>
+
+                <div class="data-card card-accent-purple">
+                    <div class="data-label">
+                        <svg class="data-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        Project Status
+                    </div>
+                    <div class="data-value">Finalized & Approved</div>
+                </div>
+            </div>
+
+            <div class="description-card">
+                <h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#667eea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    Executive Summary
+                </h3>
                 <p>{{Description}}</p>
+                <p style="margin-top: 15px; opacity: 0.7; font-size: 13px;">* Confidential: This report contains sensitive data intended solely for the designated recipient.</p>
             </div>
+        </main>
 
-            <!-- Total -->
-            <div class="total-section">
-                <div class="label">💰 Total Amount</div>
-                <div class="amount">{{TotalAmount}}</div>
-            </div>
+        <div class="total-card-vibrant">
+            <div class="total-label">💰 Total Consolidated Amount</div>
+            <div class="total-amount">{{TotalAmount}}</div>
         </div>
 
-        <!-- Footer -->
-        <div class="footer">
-            <div class="footer-left">
-                Generated with Papiro - Native HTML to PDF for .NET MAUI
+        <footer class="footer">
+            <div>
+                Powered by <span class="accent-text">Papiro PDF Solution</span>
             </div>
-            <div class="footer-right">
-                {{GeneratedAt}}
+            <div>
+                Generated on: {{GeneratedAt}}
             </div>
-        </div>
-    </div>
-
-    <div class="watermark">
-        Powered by Papiro
+        </footer>
     </div>
 </body>
-
 </html>
