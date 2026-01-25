@@ -50,86 +50,105 @@ public partial class HtmlToPdfService
 
                 webView.SetWebViewClient(new PdfWebViewClient(async (view) =>
                 {
-                    try
+                    // Ensure we are back on Main Thread for any UI interaction
+                    // (Just in case callback isn't, though onPageFinished usually is)
+                    await MainThread.InvokeOnMainThreadAsync(async () =>
                     {
-                        // Wait for rendering to complete
-                        await Task.Delay(800);
-
-                        // Get actual content height from WebView
-                        // Scale is deprecated, using Density as approximation or 1.0 if not available
-                        float scale = view.Context?.Resources?.DisplayMetrics?.Density ?? 1.0f;
-                        int contentWidth = PAGE_WIDTH;
-                        int contentHeight = (int)(view.ContentHeight * scale);
-                        
-                        if (contentHeight <= 0)
+                        try
                         {
-                            contentHeight = PAGE_HEIGHT; // Fallback to single page
-                        }
+                            // Wait for rendering to complete
+                            await Task.Delay(800);
 
-                        // Relayout WebView to full content height for accurate drawing
-                        view.Measure(
-                            AndroidView.MeasureSpec.MakeMeasureSpec(contentWidth, MeasureSpecMode.Exactly),
-                            AndroidView.MeasureSpec.MakeMeasureSpec(contentHeight, MeasureSpecMode.Exactly));
-                        view.Layout(0, 0, contentWidth, contentHeight);
-                        
-                        await Task.Delay(200); // Allow relayout to settle
+                            // Get actual content height from WebView
+                            // Scale is deprecated, using Density as approximation or 1.0 if not available
+                            float scale = view.Context?.Resources?.DisplayMetrics?.Density ?? 1.0f;
+                            int contentWidth = PAGE_WIDTH;
+                            int contentHeight = (int)(view.ContentHeight * scale);
 
-                        // Calculate number of pages needed with tolerance
-                        // If content is within 2% of a page boundary, don't create an extra blank page
-                        double exactPages = (double)contentHeight / PAGE_HEIGHT;
-                        double remainder = exactPages - Math.Floor(exactPages);
-                        int pageCount;
-                        
-                        if (remainder < 0.02) // Less than 2% overhang = round down
-                        {
-                            pageCount = (int)Math.Floor(exactPages);
-                        }
-                        else
-                        {
-                            pageCount = (int)Math.Ceiling(exactPages);
-                        }
-                        
-                        if (pageCount < 1) pageCount = 1;
-
-
-                        var pdfDocument = new PdfDocument();
-
-                        for (int pageIndex = 0; pageIndex < pageCount; pageIndex++)
-                        {
-                            var pageInfo = new PdfDocument.PageInfo.Builder(PAGE_WIDTH, PAGE_HEIGHT, pageIndex + 1).Create();
-                            var page = pdfDocument.StartPage(pageInfo);
-                            if (page == null) continue;
-
-                            // Calculate vertical offset for this page
-                            int yOffset = pageIndex * PAGE_HEIGHT;
-
-                            // Translate canvas to show correct portion of content
-                            var canvas = page.Canvas;
-                            if (canvas != null)
+                            if (contentHeight <= 0)
                             {
-                                canvas.Save();
-                                canvas.Translate(0, -yOffset);
-                                
-                                // Draw the entire WebView (translated canvas will clip to visible portion)
-                                view.Draw(canvas);
-                                
-                                canvas.Restore();
+                                contentHeight = PAGE_HEIGHT; // Fallback to single page
                             }
-                            pdfDocument.FinishPage(page);
-                        }
 
-                        using (var stream = new FileStream(filePath, FileMode.Create))
+                            // Relayout WebView to full content height for accurate drawing
+                            view.Measure(
+                                AndroidView.MeasureSpec.MakeMeasureSpec(contentWidth, MeasureSpecMode.Exactly),
+                                AndroidView.MeasureSpec.MakeMeasureSpec(contentHeight, MeasureSpecMode.Exactly));
+                            view.Layout(0, 0, contentWidth, contentHeight);
+
+                            await Task.Delay(200); // Allow relayout to settle
+
+                            // Calculate number of pages needed with tolerance
+                            // If content is within 2% of a page boundary, don't create an extra blank page
+                            double exactPages = (double)contentHeight / PAGE_HEIGHT;
+                            double remainder = exactPages - Math.Floor(exactPages);
+                            int pageCount;
+
+                            if (remainder < 0.02) // Less than 2% overhang = round down
+                            {
+                                pageCount = (int)Math.Floor(exactPages);
+                            }
+                            else
+                            {
+                                pageCount = (int)Math.Ceiling(exactPages);
+                            }
+
+                            if (pageCount < 1) pageCount = 1;
+
+
+                            var pdfDocument = new PdfDocument();
+
+                            for (int pageIndex = 0; pageIndex < pageCount; pageIndex++)
+                            {
+                                // Fix: Ensure PageInfo is created safely
+                                var pageInfo = new PdfDocument.PageInfo.Builder(PAGE_WIDTH, PAGE_HEIGHT, pageIndex + 1).Create();
+                                var page = pdfDocument.StartPage(pageInfo);
+                                if (page == null) continue;
+
+                                // Calculate vertical offset for this page
+                                int yOffset = pageIndex * PAGE_HEIGHT;
+
+                                // Translate canvas to show correct portion of content
+                                var canvas = page.Canvas;
+                                if (canvas != null)
+                                {
+                                    canvas.Save();
+                                    canvas.Translate(0, -yOffset);
+
+                                    // Draw the entire WebView (translated canvas will clip to visible portion)
+                                    view.Draw(canvas);
+
+                                    canvas.Restore();
+                                }
+                                pdfDocument.FinishPage(page);
+                            }
+
+                            using (var stream = new FileStream(filePath, FileMode.Create))
+                            {
+                                pdfDocument.WriteTo(stream);
+                            }
+
+                            pdfDocument.Close();
+
+                            // ✅ CRITICAL FIX: Destroy WebView to free native resources (Chromium)
+                            // This prevents OOM and signal crashes on repeat usage
+                            try
+                            {
+                                view.Destroy();
+                            }
+                            catch (Exception destroyEx)
+                            {
+                                System.Diagnostics.Debug.WriteLine($"Error destroying WebView: {destroyEx.Message}");
+                            }
+
+                            tcs.TrySetResult(HtmlToPdfResult.Success(filePath));
+                        }
+                        catch (Exception ex)
                         {
-                            pdfDocument.WriteTo(stream);
+                            System.Diagnostics.Debug.WriteLine($"PDF Generation Error: {ex.Message}");
+                            tcs.TrySetResult(HtmlToPdfResult.Failure(ex.Message));
                         }
-
-                        pdfDocument.Close();
-                        tcs.TrySetResult(HtmlToPdfResult.Success(filePath));
-                    }
-                    catch (Exception ex)
-                    {
-                        tcs.TrySetResult(HtmlToPdfResult.Failure(ex.Message));
-                    }
+                    });
                 }, 
                 (errorMsg) => 
                 {
