@@ -17,14 +17,18 @@ public partial class HtmlToPdfService : IHtmlToPdfService
 
         try
         {
+            // Timeout scales with content size: base 60s + 1s per KB (max 5 minutes)
+            int contentKb = htmlContent.Length / 1024;
+            int timeoutSeconds = Math.Min(300, 60 + contentKb);
+
             var conversionTask = ConvertVal(htmlContent, outputPath);
-            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(30));
+            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(timeoutSeconds));
 
             var completedTask = await Task.WhenAny(conversionTask, timeoutTask);
 
             if (completedTask == timeoutTask)
             {
-                return HtmlToPdfResult.Failure("PDF generation timed out after 30 seconds. This might be caused by large images, complex loop in scripts, or resource loading issues.");
+                return HtmlToPdfResult.Failure($"PDF generation timed out after {timeoutSeconds} seconds. This might be caused by large images, complex loop in scripts, or resource loading issues.");
             }
 
             return await conversionTask;

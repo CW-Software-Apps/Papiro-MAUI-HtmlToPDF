@@ -19,12 +19,11 @@ public partial class HtmlToPdfService
     private const int A4_WIDTH_POINTS = 595;
     private const int A4_HEIGHT_POINTS = 842;
     
-    // Scale factor for high quality rendering (300 DPI / 72 DPI ≈ 4.17)
-    // Using 3x for balance between quality and performance
-    private const int SCALE_FACTOR = 3;
+    // Scale factor: 2x gives ~144 DPI — good quality, significantly faster for large reports
+    private const int SCALE_FACTOR = 2;
     
-    private const int PAGE_WIDTH = A4_WIDTH_POINTS * SCALE_FACTOR;  // ~1785
-    private const int PAGE_HEIGHT = A4_HEIGHT_POINTS * SCALE_FACTOR; // ~2526
+    private const int PAGE_WIDTH = A4_WIDTH_POINTS * SCALE_FACTOR;  // 1190
+    private const int PAGE_HEIGHT = A4_HEIGHT_POINTS * SCALE_FACTOR; // 1684
 
     private partial async Task<HtmlToPdfResult> ConvertVal(string html, string filePath)
     {
@@ -50,25 +49,19 @@ public partial class HtmlToPdfService
 
                 webView.SetWebViewClient(new PdfWebViewClient(async (view) =>
                 {
-                    // Ensure we are back on Main Thread for any UI interaction
-                    // (Just in case callback isn't, though onPageFinished usually is)
                     await MainThread.InvokeOnMainThreadAsync(async () =>
                     {
                         try
                         {
-                            // Wait for rendering to complete
-                            await Task.Delay(800);
+                            // Wait for JS/CSS rendering to complete
+                            await Task.Delay(500);
 
-                            // Get actual content height from WebView
-                            // Scale is deprecated, using Density as approximation or 1.0 if not available
                             float scale = view.Context?.Resources?.DisplayMetrics?.Density ?? 1.0f;
                             int contentWidth = PAGE_WIDTH;
                             int contentHeight = (int)(view.ContentHeight * scale);
 
                             if (contentHeight <= 0)
-                            {
-                                contentHeight = PAGE_HEIGHT; // Fallback to single page
-                            }
+                                contentHeight = PAGE_HEIGHT;
 
                             // Relayout WebView to full content height for accurate drawing
                             view.Measure(
@@ -76,52 +69,44 @@ public partial class HtmlToPdfService
                                 AndroidView.MeasureSpec.MakeMeasureSpec(contentHeight, MeasureSpecMode.Exactly));
                             view.Layout(0, 0, contentWidth, contentHeight);
 
-                            await Task.Delay(200); // Allow relayout to settle
+                            await Task.Delay(150); // Allow relayout to settle
 
-                            // Calculate number of pages needed with tolerance
-                            // If content is within 2% of a page boundary, don't create an extra blank page
                             double exactPages = (double)contentHeight / PAGE_HEIGHT;
                             double remainder = exactPages - Math.Floor(exactPages);
-                            int pageCount;
-
-                            if (remainder < 0.02) // Less than 2% overhang = round down
-                            {
-                                pageCount = (int)Math.Floor(exactPages);
-                            }
-                            else
-                            {
-                                pageCount = (int)Math.Ceiling(exactPages);
-                            }
-
+                            int pageCount = remainder < 0.02
+                                ? (int)Math.Floor(exactPages)
+                                : (int)Math.Ceiling(exactPages);
                             if (pageCount < 1) pageCount = 1;
 
+                            // Render WebView to a single full-height bitmap, then slice into pages.
+                            // This avoids calling view.Draw() once per page (O(n²) for large reports).
+                            var fullBitmap = Android.Graphics.Bitmap.CreateBitmap(contentWidth, contentHeight, Android.Graphics.Bitmap.Config.Rgb565!);
+                            var fullCanvas = new Android.Graphics.Canvas(fullBitmap!);
+                            view.Draw(fullCanvas);
 
                             var pdfDocument = new PdfDocument();
 
                             for (int pageIndex = 0; pageIndex < pageCount; pageIndex++)
                             {
-                                // Fix: Ensure PageInfo is created safely
                                 var pageInfo = new PdfDocument.PageInfo.Builder(PAGE_WIDTH, PAGE_HEIGHT, pageIndex + 1).Create();
                                 var page = pdfDocument.StartPage(pageInfo);
                                 if (page == null) continue;
 
-                                // Calculate vertical offset for this page
                                 int yOffset = pageIndex * PAGE_HEIGHT;
+                                int sliceHeight = Math.Min(PAGE_HEIGHT, contentHeight - yOffset);
 
-                                // Translate canvas to show correct portion of content
                                 var canvas = page.Canvas;
-                                if (canvas != null)
+                                if (canvas != null && sliceHeight > 0)
                                 {
-                                    canvas.Save();
-                                    canvas.Translate(0, -yOffset);
-
-                                    // Draw the entire WebView (translated canvas will clip to visible portion)
-                                    view.Draw(canvas);
-
-                                    canvas.Restore();
+                                    // Draw only the slice of the full bitmap for this page
+                                    var srcRect = new Android.Graphics.Rect(0, yOffset, contentWidth, yOffset + sliceHeight);
+                                    var dstRect = new Android.Graphics.RectF(0, 0, PAGE_WIDTH, sliceHeight);
+                                    canvas.DrawBitmap(fullBitmap!, srcRect, dstRect, null);
                                 }
                                 pdfDocument.FinishPage(page);
                             }
+
+                            fullBitmap?.Recycle();
 
                             using (var stream = new FileStream(filePath, FileMode.Create))
                             {
