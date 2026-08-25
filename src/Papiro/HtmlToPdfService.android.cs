@@ -35,17 +35,31 @@ public partial class HtmlToPdfService
             {
                 var context = Platform.CurrentActivity ?? Platform.AppContext;
                 var webView = new AndroidWebView(context);
-                
+
                 webView.Settings.JavaScriptEnabled = true;
                 webView.Settings.DomStorageEnabled = true;
                 webView.Settings.LoadWithOverviewMode = true;
                 webView.Settings.UseWideViewPort = true;
-                
+
+                // O WebView resolve "1 px CSS" como "1 px nativo / density" (window.devicePixelRatio
+                // = Resources.DisplayMetrics.Density), independente do tamanho que a gente manda pro
+                // Layout(). Se medirmos o WebView direto em PAGE_WIDTH (px nativos fixos, já com
+                // SCALE_FACTOR embutido), o conteúdo CSS de largura fixa (595px, ver template HTML)
+                // só cabe certinho em telas com density == SCALE_FACTOR (2.0) — em qualquer outra
+                // (a maioria dos aparelhos atuais, density 2.5~3.5) o viewport CSS fica mais estreito
+                // que 595px e a tabela é cortada à direita no PDF gerado.
+                // Por isso o layout precisa ser medido em (A4_WIDTH_POINTS * density) px nativos —
+                // isso garante viewport CSS == 595px sempre — e a resolução extra do PAGE_WIDTH/HEIGHT
+                // é aplicada depois, escalando o Canvas na hora de desenhar (ver abaixo).
+                float density = context?.Resources?.DisplayMetrics?.Density ?? SCALE_FACTOR;
+                int layoutWidth = (int)(A4_WIDTH_POINTS * density);
+                int layoutHeight = (int)(A4_HEIGHT_POINTS * density);
+
                 // Set initial layout to A4 width (we'll measure height after content loads)
-                webView.Layout(0, 0, PAGE_WIDTH, PAGE_HEIGHT);
+                webView.Layout(0, 0, layoutWidth, layoutHeight);
                 webView.Measure(
-                    AndroidView.MeasureSpec.MakeMeasureSpec(PAGE_WIDTH, MeasureSpecMode.Exactly), 
-                    AndroidView.MeasureSpec.MakeMeasureSpec(PAGE_HEIGHT, MeasureSpecMode.AtMost));
+                    AndroidView.MeasureSpec.MakeMeasureSpec(layoutWidth, MeasureSpecMode.Exactly),
+                    AndroidView.MeasureSpec.MakeMeasureSpec(layoutHeight, MeasureSpecMode.AtMost));
 
                 webView.SetWebViewClient(new PdfWebViewClient(async (view) =>
                 {
@@ -56,20 +70,31 @@ public partial class HtmlToPdfService
                             // Wait for JS/CSS rendering to complete
                             await Task.Delay(500);
 
-                            float scale = view.Context?.Resources?.DisplayMetrics?.Density ?? 1.0f;
-                            int contentWidth = PAGE_WIDTH;
-                            int contentHeight = (int)(view.ContentHeight * scale);
+                            // contentWidthNative é a mesma largura (em px nativos) usada no Layout()
+                            // inicial — mantém o viewport CSS em exatamente 595px. A resolução extra
+                            // desejada (PAGE_WIDTH, com SCALE_FACTOR embutido) é obtida escalando o
+                            // Canvas no momento do desenho, não inflando a largura do WebView.
+                            int contentWidthNative = layoutWidth;
+                            int contentHeightNative = (int)(view.ContentHeight * density);
 
-                            if (contentHeight <= 0)
-                                contentHeight = PAGE_HEIGHT;
+                            if (contentHeightNative <= 0)
+                                contentHeightNative = layoutHeight;
 
                             // Relayout WebView to full content height for accurate drawing
                             view.Measure(
-                                AndroidView.MeasureSpec.MakeMeasureSpec(contentWidth, MeasureSpecMode.Exactly),
-                                AndroidView.MeasureSpec.MakeMeasureSpec(contentHeight, MeasureSpecMode.Exactly));
-                            view.Layout(0, 0, contentWidth, contentHeight);
+                                AndroidView.MeasureSpec.MakeMeasureSpec(contentWidthNative, MeasureSpecMode.Exactly),
+                                AndroidView.MeasureSpec.MakeMeasureSpec(contentHeightNative, MeasureSpecMode.Exactly));
+                            view.Layout(0, 0, contentWidthNative, contentHeightNative);
 
                             await Task.Delay(150); // Allow relayout to settle
+
+                            // Fator para converter da resolução "nativa" (CSS 1:1 com density) para a
+                            // resolução de saída do PDF (PAGE_WIDTH x PAGE_HEIGHT, com SCALE_FACTOR).
+                            float outputScale = PAGE_WIDTH / (float)contentWidthNative;
+                            int contentWidth = PAGE_WIDTH;
+                            int contentHeight = (int)(contentHeightNative * outputScale);
+                            if (contentHeight <= 0)
+                                contentHeight = PAGE_HEIGHT;
 
                             double exactPages = (double)contentHeight / PAGE_HEIGHT;
                             double remainder = exactPages - Math.Floor(exactPages);
@@ -82,6 +107,7 @@ public partial class HtmlToPdfService
                             // This avoids calling view.Draw() once per page (O(n²) for large reports).
                             var fullBitmap = Android.Graphics.Bitmap.CreateBitmap(contentWidth, contentHeight, Android.Graphics.Bitmap.Config.Rgb565!);
                             var fullCanvas = new Android.Graphics.Canvas(fullBitmap!);
+                            fullCanvas.Scale(outputScale, outputScale);
                             view.Draw(fullCanvas);
 
                             var pdfDocument = new PdfDocument();
