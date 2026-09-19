@@ -36,11 +36,11 @@ HTML is the perfect template language. Everyone knows it. It's easy to design, e
 | 🆓 **100% Free** | Uses native platform APIs. No iText, no Chromium, no Syncfusion licenses. |
 | ⚡ **Lightweight** | No heavy dependencies. Just clean, native code. |
 | 📄 **A4 Pagination** | Automatically splits long content into multiple pages. |
-| 🎨 **High Quality** | Uses 3x scale factor (~220 DPI) for crisp text and images. |
-| 📱 **Native Rendering** | Uses the same rendering engine as the platform's WebView. |
+| 🎨 **High Quality** | Uses 2x scale factor (~144 DPI) for fast generation and crisp text/images. |
+| 📱 **Native Rendering** | Uses the same rendering engine as the platform's WebView (Chromium on Android, WebKit on iOS). |
 | 🔄 **Async/Await** | Modern async API with detailed result object. |
 | 🏷️ **Template Support** | Simple `{{tag}}` substitution with included helper class. |
-| ⏱️ **Timeout Protection** | Built-in 30-second timeout prevents infinite hangs. |
+| ⏱️ **Timeout Protection** | Adaptive timeout (60s base + content scaling, up to 5 mins) preventing hangs. |
 
 ---
 
