@@ -197,6 +197,15 @@ public partial class HtmlToPdfService
             }
         }
 
+#pragma warning disable CS0809, CA1422
+        public override void OnReceivedError(AndroidWebView? view, [Android.Runtime.GeneratedEnum] ClientError errorCode, string? description, string? failingUrl)
+        {
+            base.OnReceivedError(view, errorCode, description, failingUrl);
+            _onError?.Invoke($"WebView Error: {description} (Code: {errorCode})");
+        }
+#pragma warning restore CS0809, CA1422
+
+        [System.Runtime.Versioning.SupportedOSPlatform("android23.0")]
         public override void OnReceivedError(AndroidWebView? view, IWebResourceRequest? request, WebResourceError? error)
         {
             base.OnReceivedError(view, request, error);
