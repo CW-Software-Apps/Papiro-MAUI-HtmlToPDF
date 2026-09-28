@@ -18,28 +18,55 @@ public partial class HtmlToPdfService
     // A4 dimensions at 72 DPI (standard PDF points)
     private const int A4_WIDTH_POINTS = 595;
     private const int A4_HEIGHT_POINTS = 842;
-    
+
     // Scale factor: 2x gives ~144 DPI — good quality, significantly faster for large reports
     private const int SCALE_FACTOR = 2;
-    
+
     private const int PAGE_WIDTH = A4_WIDTH_POINTS * SCALE_FACTOR;  // 1190
     private const int PAGE_HEIGHT = A4_HEIGHT_POINTS * SCALE_FACTOR; // 1684
 
-    private partial async Task<HtmlToPdfResult> ConvertVal(string html, string filePath)
+    private partial async Task<HtmlToPdfResult> ConvertVal(string html, string filePath, CancellationToken cancellationToken)
     {
         var tcs = new TaskCompletionSource<HtmlToPdfResult>();
 
         MainThread.BeginInvokeOnMainThread(() =>
         {
+            AndroidWebView? webView = null;
             try
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    tcs.TrySetResult(HtmlToPdfResult.Failure("Conversion cancelled."));
+                    return;
+                }
+
                 var context = Platform.CurrentActivity ?? Platform.AppContext;
-                var webView = new AndroidWebView(context);
+                webView = new AndroidWebView(context);
 
                 webView.Settings.JavaScriptEnabled = true;
                 webView.Settings.DomStorageEnabled = true;
                 webView.Settings.LoadWithOverviewMode = true;
                 webView.Settings.UseWideViewPort = true;
+
+                // Se o timeout do HtmlToPdfService disparar antes do OnPageFinished, destrói a
+                // WebView imediatamente em vez de deixá-la "zumbi" rodando (Chromium) em segundo
+                // plano até terminar sozinha.
+                cancellationToken.Register(() =>
+                {
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        try
+                        {
+                            webView.StopLoading();
+                            webView.Destroy();
+                        }
+                        catch (Exception destroyEx)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Error destroying WebView on cancel: {destroyEx.Message}");
+                        }
+                        tcs.TrySetResult(HtmlToPdfResult.Failure("Conversion cancelled (timeout)."));
+                    });
+                });
 
                 // O WebView resolve "1 px CSS" como "1 px nativo / density" (window.devicePixelRatio
                 // = Resources.DisplayMetrics.Density), independente do tamanho que a gente manda pro
@@ -67,6 +94,9 @@ public partial class HtmlToPdfService
                     {
                         try
                         {
+                            if (cancellationToken.IsCancellationRequested)
+                                return;
+
                             // Wait for JS/CSS rendering to complete
                             await Task.Delay(500);
 
@@ -87,6 +117,9 @@ public partial class HtmlToPdfService
                             view.Layout(0, 0, contentWidthNative, contentHeightNative);
 
                             await Task.Delay(150); // Allow relayout to settle
+
+                            if (cancellationToken.IsCancellationRequested)
+                                return;
 
                             // Fator para converter da resolução "nativa" (CSS 1:1 com density) para a
                             // resolução de saída do PDF (PAGE_WIDTH x PAGE_HEIGHT, com SCALE_FACTOR).
@@ -157,12 +190,14 @@ public partial class HtmlToPdfService
                         catch (Exception ex)
                         {
                             System.Diagnostics.Debug.WriteLine($"PDF Generation Error: {ex.Message}");
+                            try { view.Destroy(); } catch { /* best effort */ }
                             tcs.TrySetResult(HtmlToPdfResult.Failure(ex.Message));
                         }
                     });
-                }, 
-                (errorMsg) => 
+                },
+                (errorMsg) =>
                 {
+                    try { webView?.Destroy(); } catch { /* best effort */ }
                     tcs.TrySetResult(HtmlToPdfResult.Failure(errorMsg));
                 }));
 
@@ -170,6 +205,7 @@ public partial class HtmlToPdfService
             }
             catch (Exception ex)
             {
+                try { webView?.Destroy(); } catch { /* best effort */ }
                 tcs.TrySetResult(HtmlToPdfResult.Failure(ex.Message));
             }
         });
@@ -182,7 +218,7 @@ public partial class HtmlToPdfService
         private readonly Action<AndroidWebView> _onPageFinished;
         private readonly Action<string> _onError;
 
-        public PdfWebViewClient(Action<AndroidWebView> onPageFinished, Action<string> onError) 
+        public PdfWebViewClient(Action<AndroidWebView> onPageFinished, Action<string> onError)
         {
             _onPageFinished = onPageFinished;
             _onError = onError;
@@ -191,7 +227,7 @@ public partial class HtmlToPdfService
         public override void OnPageFinished(AndroidWebView? view, string? url)
         {
             base.OnPageFinished(view, url);
-            if (view != null) 
+            if (view != null)
             {
                 _onPageFinished(view);
             }

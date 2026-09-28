@@ -3,7 +3,7 @@ namespace CwSoftware.Papiro;
 
 public partial class HtmlToPdfService
 {
-    private partial Task<HtmlToPdfResult> ConvertVal(string html, string filePath)
+    private partial Task<HtmlToPdfResult> ConvertVal(string html, string filePath, CancellationToken cancellationToken)
     {
         return Task.FromResult(HtmlToPdfResult.Failure("Platform not supported for Native PDF generation."));
     }
