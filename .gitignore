@@ -3,3 +3,6 @@ obj/
 .vs/
 *.user
 *.nupkg
+
+# Dump de crash do Git Bash/MSYS (gerado na pasta atual quando o bash trava)
+*.stackdump
